@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import Button from '../Commons/Button';
 import Modal from '../Commons/Modal'
 import classes from './Cart.module.css'
 import CartItem from './CartItem'
+import CartContext from '../../store/CartContext';
 
 const BOOKS = [
     {
@@ -25,35 +26,43 @@ const BOOKS = [
 
 const Cart = (props) => {
 
-    const [books, setBooks] = useState(BOOKS);
-    const cartItems=(
-        <ul className={classes['cart-items']}>
-            {books.map((book) => (
-                <CartItem 
-                name={book.name}
-                price={book.price}
-                />
-            ))}
-        </ul>
-    )
+  //1. context 적용 전
+  const [books, setBooks] = useState(BOOKS);
 
-    const cartITemsTotal = (
+  //2. context 적용 후
+  const cartContext=useContext(CartContext);
+  //console.log(cartContext);
+
+  const cartItems=(
+    <ul className={classes['cart-items']}>
+      {cartContext.items.map((book) => (
+          <CartItem 
+            key={book.id}
+            name={book.name}
+            price={book.price}
+            amount={book.amount}
+          />
+      ))}
+    </ul>
+  )
+
+  const totalAmount=`$${cartContext.totalAmount.toFixed(2)}`;
+
+  const cartITemsTotal = (
         <div className={classes.total}>
             <span>Total Amount</span>
-            <span>{55.24}</span>
+            <span>{totalAmount}</span>
         </div>
+  )
 
-    )
-
-    
-    const modalButton = (
+  const modalButton = (
         <div className={classes.buttons}>
             <Button onClick={props.onClose}>Close</Button>
             <Button>Order</Button>
         </div>
-    )
+  )
     
-    const cartModalContent = (
+  const cartModalContent = (
         <>
         {/*장바구니 목록 cartItems*/}
         {cartItems}
@@ -62,7 +71,7 @@ const Cart = (props) => {
         {/* 취소 주문버튼 modalButton */}
         {modalButton}
         </>
-    )
+  )
 
   return <Modal onClose={props.onClose}>{cartModalContent}</Modal>;
 }

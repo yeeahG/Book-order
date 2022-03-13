@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import classes from './BooksList.module.css'
 import Book from './Book';
 import Card from '../Commons/Card';
+import {useEffect} from 'react'
 
 const BOOKS = [
     {
@@ -40,7 +41,7 @@ const BOOKS = [
 
 
 const BooksList = () => {
-    const [books, setBooks] = useState(BOOKS);
+    const [books, setBooks] = useState([]);
     //1. dummy books 확인용
     {/* const booksList = books.map(book => 
         <li key={book.id}>
@@ -56,12 +57,39 @@ const BooksList = () => {
     const booksList = books.map(book => 
         <Book
             key={book.id}
+            id={book.id}
             name={book.name}
             description={book.description}
             price={book.price}
             author={book.author}
         />
     )
+
+      //3. firebase를 활용하여 dummy data를 가져옴
+      useEffect(() => {
+          const fetchBooks = async () => {
+            //응답 결과를 담을 변수
+            const response= await fetch('https://book-order-e7945-default-rtdb.firebaseio.com/books.json');
+            console.log(response.ok);
+
+            const responseData=await response.json();
+            console.log(responseData);
+
+            const booksData = [];
+            for (const key in responseData) {
+              booksData.push(
+                {id: key, 
+                name: responseData[key].name, 
+              description: responseData[key].description,
+            author: responseData[key].author,
+          price: responseData[key].price,}
+              );
+            }
+            //console.log(booksData);
+            setBooks(booksData);
+          };
+          fetchBooks().catch(error => console.log(error));
+      }, []);
 
   return (
     <section className={classes.books}>
